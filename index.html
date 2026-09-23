@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  ███ WRAPPER GITHUB PAGES — BUKAN FILE APPS SCRIPT ███
+  File ini JANGAN ditempel ke editor Apps Script.
+  Upload ke repo GitHub, lalu ganti namanya menjadi persis: index.html
+  (Index[SFF].html adalah file Apps Script yang berbeda.)
+-->
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Specta Flora Festival</title>
+  <meta name="theme-color" content="#2F5233">
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #FAF7F0; }
+    iframe { border: 0; width: 100%; height: 100vh; height: 100dvh; display: block; }
+  </style>
+</head>
+<body>
+  <iframe id="app" allow="clipboard-write" title="Specta Flora Festival"></iframe>
+  <script>
+    // =====================================================================
+    // Wrapper anti-banner untuk web app Specta Flora Festival (SFF).
+    // Lihat INSTRUKSI-REMOVE-BANNER.md. File ini WAJIB bernama index.html
+    // dan di-host di GitHub Pages (JANGAN Google Sites).
+    //
+    // Link yang dibagikan ke publik:
+    //   Aplikasi (login panitia) : https://<user>.github.io/<repo>/
+    //   Form pendaftaran         : https://<user>.github.io/<repo>/?page=daftar&form=umkm
+    //
+    // GANTI EXEC_URL dengan URL /exec deployment SFF. Redeploy versi BARU
+    // dari deployment yang SAMA tidak mengubah URL ini, jadi file ini tidak
+    // perlu diupload ulang setiap update kode.
+    // =====================================================================
+    var EXEC_URL = "https://script.google.com/macros/s/AKfycbzCRKtJnGH_KWJ6z1BOcIhy-rozBK-FtBl5HwXhzaEjQKrt1QSrxIKQRHxHTWWbhMYj/exec";
+
+    // Halaman yang boleh dibuka lewat wrapper ('' = aplikasi utama)
+    var ALLOWED_PAGES = ['', 'daftar'];
+    // Parameter URL yang boleh diteruskan ke Apps Script
+    var ALLOWED_PARAMS = ['form'];
+
+    var iframe = document.getElementById('app');
+
+    // Tinggi iframe = tinggi layar yang benar-benar terlihat di HP, supaya
+    // tombol di bagian bawah tidak tertutup address bar browser.
+    function setIframeHeight() {
+      var h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      iframe.style.height = h + 'px';
+    }
+    setIframeHeight();
+    (window.visualViewport || window).addEventListener('resize', setIframeHeight);
+
+    function loadPage(page, params) {
+      if (ALLOWED_PAGES.indexOf(page) === -1) page = '';
+      var url = EXEC_URL + '?embed=1' + (page ? '&page=' + encodeURIComponent(page) : '');
+      Object.keys(params || {}).forEach(function (key) {
+        if (ALLOWED_PARAMS.indexOf(key) > -1 && params[key] !== undefined && params[key] !== '') {
+          url += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key]));
+        }
+      });
+      iframe.src = url;
+
+      // Samakan address bar wrapper dengan halaman yang sedang dibuka,
+      // supaya link bisa disalin/di-refresh tanpa kembali ke halaman awal.
+      var q = new URLSearchParams();
+      if (page) q.set('page', page);
+      Object.keys(params || {}).forEach(function (key) {
+        if (ALLOWED_PARAMS.indexOf(key) > -1 && params[key]) q.set(key, params[key]);
+      });
+      var qs = q.toString();
+      try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '')); } catch (e) {}
+    }
+
+    // Buka halaman sesuai parameter URL wrapper (mis. link form dari WA/QR)
+    (function initialLoad() {
+      var q = new URLSearchParams(window.location.search);
+      var params = {};
+      ALLOWED_PARAMS.forEach(function (key) { if (q.get(key)) params[key] = q.get(key); });
+      loadPage(q.get('page') || '', params);
+    })();
+
+    // Navigasi internal dari dalam web app (data-nav-page + postMessage).
+    // Hanya terima pesan dari domain Apps Script.
+    window.addEventListener('message', function (e) {
+      var origin = String(e.origin || '');
+      var fromAppsScript = /\.googleusercontent\.com$/.test(origin) || origin === 'https://script.google.com';
+      if (!fromAppsScript) return;
+      if (!e.data || typeof e.data !== 'object' || e.data.type !== 'sff-navigate') return;
+      loadPage(String(e.data.page || ''), e.data.params || {});
+    });
+  </script>
+</body>
+</html>
