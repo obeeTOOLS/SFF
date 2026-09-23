@@ -27,6 +27,7 @@
     // Link yang dibagikan ke publik:
     //   Aplikasi (login panitia) : https://<user>.github.io/<repo>/
     //   Form pendaftaran         : https://<user>.github.io/<repo>/?page=daftar&form=umkm
+    //   Info timeline & jadwal   : https://<user>.github.io/<repo>/?page=info
     //
     // GANTI EXEC_URL dengan URL /exec deployment SFF. Redeploy versi BARU
     // dari deployment yang SAMA tidak mengubah URL ini, jadi file ini tidak
@@ -35,9 +36,9 @@
     var EXEC_URL = "https://script.google.com/macros/s/AKfycbzCRKtJnGH_KWJ6z1BOcIhy-rozBK-FtBl5HwXhzaEjQKrt1QSrxIKQRHxHTWWbhMYj/exec";
 
     // Halaman yang boleh dibuka lewat wrapper ('' = aplikasi utama)
-    var ALLOWED_PAGES = ['', 'daftar'];
+    var ALLOWED_PAGES = ['', 'daftar', 'info'];
     // Parameter URL yang boleh diteruskan ke Apps Script
-    var ALLOWED_PARAMS = ['form'];
+    var ALLOWED_PARAMS = ['form', 'tahun'];
 
     var iframe = document.getElementById('app');
 
